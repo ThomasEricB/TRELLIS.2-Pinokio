@@ -1,8 +1,5 @@
 module.exports = {
   version: "5.0",
-  title: "TRELLIS.2",
-  description: "One-click installer for Microsoft TRELLIS.2: High-quality 3D asset generation from images with PBR textures.",
-  icon: "icon.png",
   menu: async (kernel, info) => {
     let installed = info.exists("app/trellis2")
     let running = {
