@@ -1,0 +1,65 @@
+diff --git a/setup.py b/setup.py
+index 1234567..abcdefg 100644
+--- a/setup.py
++++ b/setup.py
+@@ -1,6 +1,7 @@
+ from setuptools import setup
+ from torch.utils.cpp_extension import CUDAExtension, BuildExtension, IS_HIP_EXTENSION
+ import os
++import sys
+ 
+ ROOT = os.path.dirname(os.path.abspath(__file__))
+ BUILD_TARGET = os.environ.get("BUILD_TARGET", "auto")
+@@ -21,6 +22,21 @@ if not IS_HIP:
+     archs = os.getenv("GPU_ARCHS", "native").split(";")
+     cc_flag = [f"--offload-arch={arch}" for arch in archs]
+ 
++# Platform-specific compiler flags
++if sys.platform == "win32":
++    # MSVC-compatible flags
++    cxx_args = ["/O2", "/std:c++17"]
++    nvcc_args = ["-O3", "-std=c++17"] + cc_flag
++    # Workaround for PyTorch 2.9+ / CUDA 13+ / MSVC "ambiguous std symbol" error
++    # in torch/csrc/dynamo/compiled_autograd.h. Defining USE_CUDA ensures the
++    # preprocessor takes the safe path that avoids problematic if constexpr branches.
++    nvcc_args += ["-DUSE_CUDA=1"]
++    cxx_args += ["/DUSE_CUDA=1"]
++else:
++    # GCC/Clang flags
++    cxx_args = ["-O3", "-std=c++17"]
++    nvcc_args = ["-O3", "-std=c++17"] + cc_flag
++
+ setup(
+     name="cumesh",
+     packages=[
+@@ -53,8 +69,8 @@ setup(
+                 "src/ext.cpp",
+             ],
+             extra_compile_args={
+-                "cxx": ["-O3", "-std=c++17"],
+-                "nvcc": ["-O3","-std=c++17"] + cc_flag,
++                "cxx": cxx_args,
++                "nvcc": nvcc_args,
+             }
+         ),
+         CUDAExtension(
+@@ -83,8 +99,8 @@ setup(
+                 os.path.join(ROOT, "third_party/cubvh/third_party/eigen"),
+             ],
+             extra_compile_args={
+-                "cxx": ["-O3", "-std=c++17"],
+-                "nvcc": ["-O3","-std=c++17"] + cc_flag + [
++                "cxx": cxx_args,
++                "nvcc": nvcc_args + [
+                     "--extended-lambda",
+                     "--expt-relaxed-constexpr",
+                     # The following definitions must be undefined
+@@ -101,7 +117,7 @@ setup(
+                 'third_party/xatlas/binding.cpp',
+             ],
+             extra_compile_args={
+-                "cxx": ["-O3", "-std=c++17"],
++                "cxx": cxx_args,
+             }
+         ),
+     ],

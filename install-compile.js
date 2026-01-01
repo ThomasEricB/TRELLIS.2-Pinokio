@@ -155,20 +155,9 @@ module.exports = {
                 ]
             }
         },
-        {
-            when: "{{platform === 'win32'}}",
-            method: "shell.run",
-            params: {
-                venv: "venv",
-                path: "app",
-                message: [
-                    "uv pip install https://github.com/Deathdadev/TRELLIS.2-Pinokio/releases/download/wheels/cumesh-0.0.1+cu128.torch270-cp310-cp310-win_amd64.whl https://github.com/Deathdadev/TRELLIS.2-Pinokio/releases/download/wheels/flex_gemm-0.0.1+cu128.torch270-cp310-cp310-win_amd64.whl https://github.com/Deathdadev/TRELLIS.2-Pinokio/releases/download/wheels/o_voxel-0.0.1+cu128.torch270-cp310-cp310-win_amd64.whl --no-build-isolation"
-                ]
-            }
-        },
         // Step 10: Clone CuMesh
         {
-            when: "{{gpu === 'nvidia' && !exists('extensions/CuMesh') && platform !== 'win32'}}",
+            when: "{{gpu === 'nvidia' && !exists('extensions/CuMesh')}}",
             method: "shell.run",
             params: {
                 message: [
@@ -188,21 +177,21 @@ module.exports = {
                 ]
             }
         },
-        // // Step 11b: Apply CuMesh patch (Windows)
-        // {
-        //     when: "{{gpu === 'nvidia' && platform === 'win32'}}",
-        //     method: "shell.run",
-        //     params: {
-        //         path: "extensions/CuMesh",
-        //         message: [
-        //             "git apply --check ../../patches/cumesh_atlas.patch 2>NUL && git apply ../../patches/cumesh_atlas.patch && echo CuMesh atlas patch applied || echo CuMesh atlas patch skipped",
-        //             "git apply --check ../../patches/cumesh_setup.patch 2>NUL && git apply ../../patches/cumesh_setup.patch && echo CuMesh setup patch applied || echo CuMesh setup patch skipped"
-        //         ]
-        //     }
-        // },
+        // Step 11b: Apply CuMesh patch (Windows)
+        {
+            when: "{{gpu === 'nvidia' && platform === 'win32'}}",
+            method: "shell.run",
+            params: {
+                path: "extensions/CuMesh",
+                message: [
+                    "git apply --check ../../patches/cumesh_atlas.patch 2>NUL && git apply ../../patches/cumesh_atlas.patch && echo CuMesh atlas patch applied || echo CuMesh atlas patch skipped",
+                    "git apply --check ../../patches/cumesh_setup.patch 2>NUL && git apply ../../patches/cumesh_setup.patch && echo CuMesh setup patch applied || echo CuMesh setup patch skipped"
+                ]
+            }
+        },
         // Step 12: Install CuMesh
         {
-            when: "{{gpu === 'nvidia' && platform !== 'win32'}}",
+            when: "{{gpu === 'nvidia'}}",
             method: "shell.run",
             params: {
                 venv: "venv",
@@ -218,7 +207,7 @@ module.exports = {
         },
         // Step 13: Clone FlexGEMM
         {
-            when: "{{gpu === 'nvidia' && !exists('extensions/FlexGEMM') && platform !== 'win32'}}",
+            when: "{{gpu === 'nvidia' && !exists('extensions/FlexGEMM')}}",
             method: "shell.run",
             params: {
                 message: [
@@ -228,7 +217,7 @@ module.exports = {
         },
         // Step 13b: Apply FlexGEMM setup patch
         {
-            when: "{{gpu === 'nvidia' && exists('extensions/FlexGEMM') && platform !== 'win32'}}",
+            when: "{{gpu === 'nvidia' && exists('extensions/FlexGEMM')}}",
             method: "shell.run",
             params: {
                 path: "extensions/FlexGEMM",
@@ -239,7 +228,7 @@ module.exports = {
         },
         // Step 14: Install FlexGEMM
         {
-            when: "{{gpu === 'nvidia' && platform !== 'win32'}}",
+            when: "{{gpu === 'nvidia'}}",
             method: "shell.run",
             params: {
                 venv: "venv",
@@ -263,16 +252,16 @@ module.exports = {
                 ]
             }
         },
-        // // Step 15b: Copy o-voxel to extensions directory (Windows)
-        // {
-        //     when: "{{gpu === 'nvidia' && platform === 'win32' && !exists('extensions/o-voxel')}}",
-        //     method: "shell.run",
-        //     params: {
-        //         message: [
-        //             "xcopy /E /I /Y app\\o-voxel extensions\\o-voxel"
-        //         ]
-        //     }
-        // },
+        // Step 15b: Copy o-voxel to extensions directory (Windows)
+        {
+            when: "{{gpu === 'nvidia' && platform === 'win32' && !exists('extensions/o-voxel')}}",
+            method: "shell.run",
+            params: {
+                message: [
+                    "xcopy /E /I /Y app\\o-voxel extensions\\o-voxel"
+                ]
+            }
+        },
 
         // Step 16: Apply o-voxel patches (Linux/macOS)
         {
@@ -289,24 +278,24 @@ module.exports = {
                 ]
             }
         },
-        // // Step 16b: Apply o-voxel patches (Windows)
-        // {
-        //     when: "{{gpu === 'nvidia' && platform === 'win32'}}",
-        //     method: "shell.run",
-        //     params: {
-        //         path: "extensions/o-voxel",
-        //         message: [
-        //             "patch -p1 --forward < ../../patches/ovoxel_pyproject.patch || echo patch skipped",
-        //             "patch -p1 --forward < ../../patches/ovoxel_pr59.patch || echo patch skipped",
-        //             "patch -p1 --forward < ../../patches/ovoxel_pr60.patch || echo patch skipped",
-        //             "patch -p1 --forward < ../../patches/ovoxel_pr61.patch || echo patch skipped",
-        //             "patch -p1 --forward < ../../patches/ovoxel_setup.patch || echo patch skipped"
-        //         ]
-        //     }
-        // },
+        // Step 16b: Apply o-voxel patches (Windows)
+        {
+            when: "{{gpu === 'nvidia' && platform === 'win32'}}",
+            method: "shell.run",
+            params: {
+                path: "extensions/o-voxel",
+                message: [
+                    "patch -p1 --forward < ../../patches/ovoxel_pyproject.patch || echo patch skipped",
+                    "patch -p1 --forward < ../../patches/ovoxel_pr59.patch || echo patch skipped",
+                    "patch -p1 --forward < ../../patches/ovoxel_pr60.patch || echo patch skipped",
+                    "patch -p1 --forward < ../../patches/ovoxel_pr61.patch || echo patch skipped",
+                    "patch -p1 --forward < ../../patches/ovoxel_setup.patch || echo patch skipped"
+                ]
+            }
+        },
         // Step 17: Install o-voxel from extensions directory
         {
-            when: "{{gpu === 'nvidia' && platform !== 'win32'}}",
+            when: "{{gpu === 'nvidia'}}",
             method: "shell.run",
             params: {
                 venv: "venv",
@@ -320,53 +309,53 @@ module.exports = {
                 ]
             }
         },
-        // // Step 18: Check HuggingFace authentication status
-        // // Run hf auth whoami and capture the result - if it fails, user is not authenticated
-        // // Using unique markers to avoid confusion with command echo
-        // {
-        //     when: "{{platform !== 'win32'}}",
-        //     method: "shell.run",
-        //     params: {
-        //         venv: "venv",
-        //         path: "app",
-        //         message: [
-        //             "hf auth whoami > /dev/null 2>&1 && echo 'HF_AUTH_YES' || echo 'HF_AUTH_NO'"
-        //         ]
-        //     }
-        // },
-        // {
-        //     when: "{{platform === 'win32'}}",
-        //     method: "shell.run",
-        //     params: {
-        //         venv: "venv",
-        //         path: "app",
-        //         message: [
-        //             "hf auth whoami >NUL 2>&1 && echo HF_AUTH_YES || echo HF_AUTH_NO"
-        //         ]
-        //     }
-        // },
-        // // Step 19: Store auth status in local variable based on shell output
-        // {
-        //     method: "local.set",
-        //     params: {
-        //         hf_authenticated: "{{input.stdout.includes('HF_AUTH_YES')}}"
-        //     }
-        // },
-        // // Step 20: Jump based on authentication status
-        // {
-        //     method: "jump",
-        //     params: {
-        //         id: "{{local.hf_authenticated ? 'hf_auth_done' : 'download_mirrors'}}"
-        //     }
-        // },
+        // Step 18: Check HuggingFace authentication status
+        // Run hf auth whoami and capture the result - if it fails, user is not authenticated
+        // Using unique markers to avoid confusion with command echo
+        {
+            when: "{{platform !== 'win32'}}",
+            method: "shell.run",
+            params: {
+                venv: "venv",
+                path: "app",
+                message: [
+                    "hf auth whoami > /dev/null 2>&1 && echo 'HF_AUTH_YES' || echo 'HF_AUTH_NO'"
+                ]
+            }
+        },
+        {
+            when: "{{platform === 'win32'}}",
+            method: "shell.run",
+            params: {
+                venv: "venv",
+                path: "app",
+                message: [
+                    "hf auth whoami >NUL 2>&1 && echo HF_AUTH_YES || echo HF_AUTH_NO"
+                ]
+            }
+        },
+        // Step 19: Store auth status in local variable based on shell output
+        {
+            method: "local.set",
+            params: {
+                hf_authenticated: "{{input.stdout.includes('HF_AUTH_YES')}}"
+            }
+        },
+        // Step 20: Jump based on authentication status
+        {
+            method: "jump",
+            params: {
+                id: "{{local.hf_authenticated ? 'hf_auth_done' : 'download_mirrors'}}"
+            }
+        },
         // Download models from mirrors (unauthenticated users)
-        // {
-        //     id: "download_mirrors",
-        //     method: "log",
-        //     params: {
-        //         text: "*** Not authenticated with HuggingFace - downloading models from mirrors ***"
-        //     }
-        // },
+        {
+            id: "download_mirrors",
+            method: "log",
+            params: {
+                text: "*** Not authenticated with HuggingFace - downloading models from mirrors ***"
+            }
+        },
         // Download DINOv3 from mirror (Linux/macOS)
         {
             when: "{{platform !== 'win32'}}",
@@ -419,14 +408,14 @@ module.exports = {
                 ]
             }
         },
-        // // Authenticated users skip to here
-        // {
-        //     id: "hf_auth_done",
-        //     method: "log",
-        //     params: {
-        //         text: "*** HuggingFace authentication check complete ***"
-        //     }
-        // },
+        // Authenticated users skip to here
+        {
+            id: "hf_auth_done",
+            method: "log",
+            params: {
+                text: "*** HuggingFace authentication check complete ***"
+            }
+        },
         // Final step: Notify completion
         {
             method: "log",

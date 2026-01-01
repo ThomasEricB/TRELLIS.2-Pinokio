@@ -1,0 +1,18 @@
+diff --git a/setup.py b/setup.py
+index abcdefg..1234567 100644
+--- a/setup.py
++++ b/setup.py
+@@ -27,8 +27,11 @@ if not IS_HIP:
+ 
+ if platform.system() == "Windows":
+     extra_compile_args = {
+-        "cxx": ["/O2", "/std:c++17", "/EHsc"],
+-        "nvcc": ["-O3", "-std=c++17"] + cc_flag,
++        # Workaround for PyTorch 2.9+ / CUDA 13+ / MSVC "ambiguous std symbol" error
++        # in torch/csrc/dynamo/compiled_autograd.h. Defining USE_CUDA ensures the
++        # preprocessor takes the safe path that avoids problematic if constexpr branches.
++        "cxx": ["/O2", "/std:c++17", "/EHsc", "/DUSE_CUDA=1"],
++        "nvcc": ["-O3", "-std=c++17", "-DUSE_CUDA=1"] + cc_flag,
+     }
+ else:
+     # Match PyTorch's CXX11 ABI setting
