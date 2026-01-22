@@ -375,10 +375,10 @@ module.exports = {
         
         // Download DINOv3 from mirror
         {
-            method: "shell.run",
+            method: "hf.download",
             params: {
-                path: "app",
-                message: 'hf download camenduru/dinov3-vitl16-pretrain-lvd1689m --exclude="License.md" --exclude=".gitattributes" --exclude="README.md"'
+                _: ["camenduru/dinov3-vitl16-pretrain-lvd1689m"],
+                exclude: ["License.md", ".gitattributes", "README.md"]
             }
         },
         // Rename DINOv3 model directory  (Linux/macOS)
@@ -401,10 +401,10 @@ module.exports = {
         },
         // Download RMBG-2.0 from mirror
         {
-            method: "shell.run",
+            method: "hf.download",
             params: {
-                path: "app",
-                message: 'hf download camenduru/RMBG-2.0 --exclude=".gitattributes" --exclude="README.md"'
+                _: ["camenduru/RMBG-2.0"],
+                exclude: [".gitattributes", "README.md"]
             }
         },
         // Rename RMBG-2.0  model directory (Linux)
