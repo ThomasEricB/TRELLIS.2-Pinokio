@@ -325,7 +325,20 @@ module.exports = {
                 ]
             }
         },
-        // // Step 18: Check HuggingFace authentication status
+        // Step 18: Upgrade Triton and spconv for Blackwell and newer GPUs (Linux + sm_120+ only)
+        // This must be done at the end because other packages may downgrade Triton
+        {
+            when: "{{platform === 'linux' && Number(local.cuda_arch.split('.')[0]) >= 12}}",
+            method: "shell.run",
+            params: {
+                venv: "venv",
+                path: "app",
+                message: [
+                    "uv pip install 'triton>=3.6.0' spconv-cu126"
+                ]
+            }
+        },
+        // // Step 19: Check HuggingFace authentication status
         // // Run hf auth whoami and capture the result - if it fails, user is not authenticated
         // // Using unique markers to avoid confusion with command echo
         // {
@@ -350,14 +363,14 @@ module.exports = {
         //         ]
         //     }
         // },
-        // // Step 19: Store auth status in local variable based on shell output
+        // // Step 20: Store auth status in local variable based on shell output
         // {
         //     method: "local.set",
         //     params: {
         //         hf_authenticated: "{{input.stdout.includes('HF_AUTH_YES')}}"
         //     }
         // },
-        // // Step 20: Jump based on authentication status
+        // // Step 21: Jump based on authentication status
         // {
         //     method: "jump",
         //     params: {
@@ -433,19 +446,6 @@ module.exports = {
         //         text: "*** HuggingFace authentication check complete ***"
         //     }
         // },
-        // Upgrade Triton and spconv for Blackwell and newer GPUs (Linux + sm_120+ only)
-        // This must be done at the end because other packages may downgrade Triton
-        {
-            when: "{{platform === 'linux' && Number(local.cuda_arch.split('.')[0]) >= 12}}",
-            method: "shell.run",
-            params: {
-                venv: "venv",
-                path: "app",
-                message: [
-                    "uv pip install 'triton>=3.6.0' spconv-cu126"
-                ]
-            }
-        },
         // Final step: Notify completion
         {
             method: "log",
