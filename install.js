@@ -47,7 +47,7 @@ module.exports = {
                 venv: "venv",
                 path: "app",
                 message: [
-                    "uv pip install wheel setuptools imageio imageio-ffmpeg tqdm easydict opencv-python-headless ninja trimesh transformers gradio==5.50.0 tensorboard pandas lpips zstandard kornia timm plyfile numpy pygltflib"
+                    "uv pip install wheel setuptools imageio imageio-ffmpeg tqdm easydict opencv-python-headless ninja trimesh transformers==4.57.3 gradio==5.50.0 tensorboard pandas lpips zstandard kornia timm plyfile numpy pygltflib"
                 ]
             }
         },
@@ -325,7 +325,7 @@ module.exports = {
                 ]
             }
         },
-        // Step 18: Upgrade Triton and spconv for Blackwell and newer GPUs (Linux + sm_120+ only)
+        // Step 18a: Upgrade Triton and spconv for Blackwell and newer GPUs (Linux + sm_120+ only)
         // This must be done at the end because other packages may downgrade Triton
         {
             when: "{{platform === 'linux' && Number(local.cuda_arch.split('.')[0]) >= 12}}",
@@ -335,6 +335,18 @@ module.exports = {
                 path: "app",
                 message: [
                     "uv pip install 'triton>=3.6.0' spconv-cu126"
+                ]
+            }
+        },
+        // Step 18b: Prevent transformers upgrade.
+        // This must be done at the end because other packages may downgrade transformers.
+        {
+            method: "shell.run",
+            params: {
+                venv: "venv",
+                path: "app",
+                message: [
+                    "uv pip install transformers==4.57.3"
                 ]
             }
         },
